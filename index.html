@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>An Music 美化方案预览 · 简约深色版</title>
+<style>
+:root {
+  --primary: #8B5CF6;
+  --primary-soft: rgba(139,92,246,.15);
+  --bg: #0F0F17;
+  --bg2: #13131A;
+  --card: #1A1A24;
+  --card2: #25252D;
+  --text: #FFFFFF;
+  --text2: #9CA3AF;
+  --text3: #6B7280;
+  --top1: #EC4899;
+  --top2: #F59E0B;
+  --top3: #FBBF24;
+}
+body.pink {
+  --primary: #FF496C;
+  --primary-soft: rgba(255,73,108,.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#08080c; color:#fff; font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif; padding:30px 16px 80px; }
+.wrap { max-width:1100px; margin:0 auto; }
+h1 { font-size:23px; font-weight:700; margin:40px 0 8px; border-left:4px solid var(--primary); padding-left:14px; }
+.sub { color:#8a8a93; font-size:13px; margin-bottom:14px; padding-left:18px; line-height:1.8; }
+.badges { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; padding-left:18px; }
+.badge { font-size:11px; color:var(--primary); background:var(--primary-soft); border:1px solid var(--primary); border-radius:20px; padding:4px 12px; opacity:.9; }
+/* 主色切换 */
+.color-switch { display:flex; gap:10px; padding-left:18px; margin:16px 0; }
+.cbtn { font-size:12.5px; border-radius:18px; padding:8px 18px; cursor:pointer; border:1.5px solid #33333c; background:#17171c; color:#9a9aa2; }
+.cbtn.on { border-color:var(--primary); color:var(--primary); background:var(--primary-soft); font-weight:600; }
+/* 舞台 */
+.stage { display:flex; gap:36px; justify-content:center; align-items:flex-start; margin-top:24px; flex-wrap:wrap; }
+.phone { width:390px; height:844px; background:var(--bg); border:8px solid #26262e; border-radius:44px; position:relative; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.65); flex-shrink:0; transition:background .3s; }
+.notch { position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:24px; background:#08080c; border-radius:0 0 14px 14px; z-index:60; }
+.screen { width:100%; height:100%; display:flex; flex-direction:column; background:var(--bg); transition:background .3s; }
+.page { display:none; flex:1; overflow-y:auto; padding:36px 0 0; scrollbar-width:none; }
+.page::-webkit-scrollbar { display:none; }
+.page.on { display:block; }
+/* 顶部导航 */
+.topnav { display:flex; align-items:center; gap:18px; padding:10px 16px 0; }
+.topnav .tab { color:var(--text2); font-size:15px; position:relative; padding-bottom:9px; white-space:nowrap; }
+.topnav .tab.on { color:var(--primary); font-weight:600; }
+.topnav .tab.on::after { content:''; position:absolute; left:12%; right:12%; bottom:0; height:2px; border-radius:2px; background:var(--primary); }
+.topnav .srch { margin-left:auto; color:var(--text2); font-size:13px; padding-bottom:9px; display:flex; align-items:center; gap:4px; }
+/* 轮播 */
+.bannerbox { position:relative; margin:12px 16px 0; height:170px; border-radius:16px; overflow:hidden; }
+.bslide { display:none; width:100%; height:100%; position:relative; }
+.bslide.on { display:block; }
+.bslide .bg { position:absolute; inset:0; }
+.bslide .tag { position:absolute; left:16px; top:16px; font-size:9px; color:#fff; background:var(--primary); border-radius:8px; padding:3px 9px; }
+.bslide .t { position:absolute; left:18px; top:52px; font-size:24px; font-weight:700; color:#fff; }
+.bslide .s { position:absolute; left:19px; top:88px; font-size:11px; color:rgba(255,255,255,.75); }
+.bslide .go { position:absolute; left:17px; bottom:18px; font-size:11px; color:#fff; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3); border-radius:14px; padding:6px 14px; backdrop-filter:blur(4px); }
+.bdots { position:absolute; bottom:10px; right:16px; display:flex; gap:4px; align-items:center; }
+.bdots i { width:6px; height:6px; border-radius:3px; background:rgba(255,255,255,.35); transition:all .3s; }
+.bdots i.on { width:14px; background:#fff; }
+/* 区块标题 */
+.sec { padding:0 16px; margin-top:22px; }
+.sechead { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.sechead h3 { font-size:16px; font-weight:600; display:flex; align-items:center; gap:6px; }
+.sechead h3 .ico { color:var(--primary); }
+.sechead .more { font-size:12px; color:var(--primary); }
+/* 横向滚动歌单 */
+.hscroll { display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
+.hscroll::-webkit-scrollbar { display:none; }
+.hcard { width:104px; flex-shrink:0; }
+.hcard .cv { position:relative; padding-top:100%; border-radius:12px; overflow:hidden; }
+.hcard .cv .em { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:30px; }
+.hcard .cv .pl { position:absolute; right:6px; bottom:6px; width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; font-size:8px; color:#fff; }
+.hcard .nm { font-size:11.5px; color:var(--text); margin-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hcard .ct { font-size:9.5px; color:var(--text3); margin-top:2px; }
+/* 新歌列表 */
+.songrow { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.songrow .cv { width:48px; height:48px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.songrow .info { flex:1; min-width:0; }
+.songrow .nm { font-size:13.5px; color:var(--text); display:flex; align-items:center; gap:6px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.songrow .new { font-size:8px; color:#fff; background:var(--primary); border-radius:4px; padding:1.5px 5px; flex-shrink:0; }
+.songrow .ar { font-size:11px; color:var(--text2); margin-top:4px; }
+.songrow .mo { color:var(--text3); font-size:14px; flex-shrink:0; }
+/* 播放卡片 */
+.playcard { margin:10px 16px; background:var(--card); border-radius:16px; display:flex; align-items:center; padding:10px 14px; gap:12px; position:relative; overflow:hidden; flex-shrink:0; }
+.playcard .cv { width:48px; height:48px; border-radius:8px; background:linear-gradient(135deg,var(--primary),#3d2a6e); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.playcard .info { flex:1; min-width:0; }
+.playcard .nm { font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.playcard .ar { font-size:10.5px; color:var(--text2); margin-top:3px; }
+.playcard .btn { width:40px; height:40px; border-radius:50%; border:2px solid var(--primary); display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; flex-shrink:0; }
+.playcard .next { font-size:20px; color:var(--text); flex-shrink:0; }
+.playcard .prog { position:absolute; top:0; left:0; height:2px; background:var(--primary); width:42%; border-radius:0 2px 2px 0; }
+/* 底部Tab */
+.tabbar { height:74px; background:var(--bg2); display:flex; align-items:flex-start; justify-content:space-around; padding-top:10px; border-top:1px solid rgba(255,255,255,.05); flex-shrink:0; }
+.tabbar .item { display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--text3); font-size:10.5px; flex:1; }
+.tabbar .item svg { width:21px; height:21px; }
+.tabbar .item.on { color:var(--primary); }
+.tabbar .item.on svg { filter:drop-shadow(0 0 6px var(--primary)); }
+/* 发现页子导航 */
+.subnav { display:flex; align-items:center; gap:18px; padding:10px 16px 0; }
+.subnav .tab { color:var(--text2); font-size:15px; position:relative; padding-bottom:9px; }
+.subnav .tab.on { color:var(--primary); font-weight:600; }
+.subnav .tab.on::after { content:''; position:absolute; left:12%; right:12%; bottom:0; height:2px; border-radius:2px; background:var(--primary); }
+/* 分类标签 */
+.chips { display:flex; gap:8px; padding:12px 16px 2px; overflow-x:auto; scrollbar-width:none; }
+.chips::-webkit-scrollbar { display:none; }
+.chip { font-size:12px; color:var(--text2); background:var(--card2); border-radius:16px; padding:7px 15px; white-space:nowrap; flex-shrink:0; }
+.chip.on { background:var(--primary); color:#fff; }
+/* 排行榜双列错位 */
+.boardwrap { display:flex; gap:16px; padding:12px 16px 0; }
+.bcol { flex:1; display:flex; flex-direction:column; gap:16px; }
+.bcol.right { margin-top:44px; }
+.board { background:var(--card); border-radius:16px; overflow:hidden; position:relative; }
+.board .cv { position:relative; height:132px; display:flex; align-items:center; justify-content:center; }
+.board .cv .em { font-size:38px; opacity:.92; }
+.board .top { position:absolute; left:10px; top:9px; font-size:10px; font-weight:800; font-style:italic; letter-spacing:.5px; color:#fff; }
+.board .top b { font-size:15px; }
+.board .top.t1 b { color:var(--top1); } .board .top.t2 b { color:var(--top2); } .board .top.t3 b { color:var(--top3); }
+.board .top.n b { color:var(--text2); font-size:12px; }
+.board .pl { position:absolute; right:9px; bottom:9px; width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.22); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; }
+.board .nm { font-size:13px; color:var(--text); font-weight:600; margin:9px 12px 0; }
+.board .ct { display:flex; justify-content:space-between; font-size:10px; color:var(--text2); margin:5px 12px 12px; }
+.board .ct .pv { display:flex; align-items:center; gap:3px; }
+/* 歌单广场三列瀑布流 */
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:12px 12px 0; }
+.gcard .cv { position:relative; padding-top:100%; border-radius:10px; overflow:hidden; }
+.gcard .cv .em { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:30px; }
+.gcard .cv .pl { position:absolute; right:6px; bottom:6px; width:26px; height:26px; border-radius:50%; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; }
+.gcard .nm { font-size:12.5px; color:var(--text); margin-top:6px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.gcard .ct { display:flex; justify-content:space-between; font-size:9.5px; color:var(--text2); margin-top:4px; margin-bottom:8px; }
+.gcard .ct span { display:flex; align-items:center; gap:2px; }
+/* 我的音乐 / 个人中心 简化 */
+.simple { padding:24px 16px; }
+.simple .big { font-size:19px; font-weight:700; margin-bottom:14px; }
+.simple .row { display:flex; align-items:center; gap:12px; background:var(--card); border-radius:12px; padding:14px; margin-bottom:10px; }
+.simple .row .ic { width:40px; height:40px; border-radius:10px; background:var(--primary-soft); display:flex; align-items:center; justify-content:center; font-size:17px; }
+.simple .row .t { font-size:13.5px; }
+.simple .row .d { font-size:10.5px; color:var(--text2); margin-top:3px; }
+/* 说明区 */
+.callout { margin:20px 18px; padding:16px 20px; background:var(--primary-soft); border-left:4px solid var(--primary); border-radius:10px; font-size:13.5px; line-height:2; color:#d8d8de; }
+.callout b { color:var(--primary); }
+.tbl { margin:8px 18px; border:1px solid #2a2a32; border-radius:12px; overflow:hidden; font-size:13px; }
+.tbl table { width:100%; border-collapse:collapse; }
+.tbl th { background:#1e1e26; color:var(--primary); font-weight:600; text-align:left; padding:11px 14px; font-size:12.5px; }
+.tbl td { padding:11px 14px; border-top:1px solid #23232b; color:#c8c8d0; line-height:1.6; vertical-align:top; }
+.tbl td b { color:#fff; }
+.confirm { margin:26px 18px; padding:20px 22px; border-radius:14px; background:linear-gradient(120deg,var(--primary-soft),transparent); border:1px solid var(--primary); font-size:14px; line-height:2; }
+.confirm .t { font-size:16px; font-weight:700; color:var(--primary); margin-bottom:8px; }
+.foot { text-align:center; color:#5a5a64; font-size:12px; margin-top:36px; }
+.sideinfo { max-width:420px; min-width:300px; }
+.sideinfo .card { background:#17171c; border:1px solid #26262e; border-radius:14px; padding:18px; margin-bottom:14px; font-size:13px; line-height:1.9; color:#c0c0c8; }
+.sideinfo .card h4 { color:var(--primary); font-size:14px; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1 style="margin-top:10px;">An Music 美化方案 · 简约深色版</h1>
+<p class="sub">按你的三张参考图重制：深色简约风 · 轮播5张 · 个性化推荐横滑 · 排行榜双列错位瀑布流 · 歌单广场三列瀑布流 · 抽屉菜单的歌单/排行榜移至首页顶部导航 · 预览可直接点击交互</p>
+<div class="badges">
+  <span class="badge">主色 紫 #8B5CF6（按参考图）</span>
+  <span class="badge">可切换粉色对比</span>
+  <span class="badge">轮播 × 5</span>
+  <span class="badge">双列错位瀑布流</span>
+  <span class="badge">三列瀑布流</span>
+  <span class="badge">可点击交互</span>
+</div>
+<div class="color-switch">
+  <span class="cbtn on" id="cb-purple" onclick="setPrimary('purple')">紫色主调（参考图）</span>
+  <span class="cbtn" id="cb-pink" onclick="setPrimary('pink')">粉色主调（之前方案）</span>
+</div>
+
+<div class="stage">
+
+<!-- ══════════ 手机模拟 ══════════ -->
+<div class="phone">
+<div class="notch"></div>
+<div class="screen">
+
+  <!-- ============ 首页 ============ -->
+  <div class="page on" id="pg-home">
+    <div class="topnav">
+      <span class="tab on">推荐</span><span class="tab" onclick="navTo('discover');disTo('board')">排行榜</span><span class="tab" onclick="navTo('discover');disTo('square')">歌单</span><span class="tab" onclick="navTo('discover');disTo('artist')">歌手</span>
+      <span class="srch">🔍 搜索</span>
+    </div>
+
+    <!-- 5张轮播 -->
+    <div class="bannerbox">
+      <div class="bslide on"><div class="bg" style="background:linear-gradient(120deg,#3d2a6e,#1a1030 55%,#0f0f17);"></div><span class="tag">精选歌单</span><div class="t">城市晚风</div><div class="s">治愈系夜晚歌单 · 收藏 128万</div><span class="go">▶ 立即收听</span></div>
+      <div class="bslide"><div class="bg" style="background:linear-gradient(120deg,#6e2a4a,#2a1030 55%,#0f0f17);"></div><span class="tag">热歌速递</span><div class="t">华语热歌榜</div><div class="s">本周最火新歌速递 · 1200万播放</div><span class="go">▶ 立即收听</span></div>
+      <div class="bslide"><div class="bg" style="background:linear-gradient(120deg,#2a5a6e,#10302e 55%,#0f0f17);"></div><span class="tag">氛围必备</span><div class="t">深夜学习舱</div><div class="s">专注学习氛围音乐 · 收藏 96万</div><span class="go">▶ 立即收听</span></div>
+      <div class="bslide"><div class="bg" style="background:linear-gradient(120deg,#6e5a2a,#302a10 55%,#0f0f17);"></div><span class="tag">经典回味</span><div class="t">华语经典金曲</div><div class="s">那些年的经典旋律 · 收藏 210万</div><span class="go">▶ 立即收听</span></div>
+      <div class="bslide"><div class="bg" style="background:linear-gradient(120deg,#4a2a6e,#241030 55%,#0f0f17);"></div><span class="tag">电音浪潮</span><div class="t">电子律动精选</div><div class="s">前卫电子节拍 · 收藏 75万</div><span class="go">▶ 立即收听</span></div>
+      <div class="bdots" id="bdots"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <!-- 个性化推荐 -->
+    <div class="sec">
+      <div class="sechead"><h3>个性化推荐</h3><span class="more">更多 ›</span></div>
+      <div class="hscroll">
+        <div class="hcard"><div class="cv" style="background:linear-gradient(135deg,#3d2a6e,#171030);"><span class="em">🌃</span><span class="pl">▶</span></div><div class="nm">夜晚治愈所</div><div class="ct">32.8万收藏</div></div>
+        <div class="hcard"><div class="cv" style="background:linear-gradient(135deg,#6e2a4a,#301020);"><span class="em">🎹</span><span class="pl">▶</span></div><div class="nm">轻音乐精选</div><div class="ct">21.4万收藏</div></div>
+        <div class="hcard"><div class="cv" style="background:linear-gradient(135deg,#2a5a6e,#102a30);"><span class="em">📚</span><span class="pl">▶</span></div><div class="nm">静心学习</div><div class="ct">18.7万收藏</div></div>
+        <div class="hcard"><div class="cv" style="background:linear-gradient(135deg,#6e5a2a,#302a10);"><span class="em">🎧</span><span class="pl">▶</span></div><div class="nm">R&B 慢摇</div><div class="ct">29.6万收藏</div></div>
+        <div class="hcard"><div class="cv" style="background:linear-gradient(135deg,#4a2a6e,#201030);"><span class="em">🎸</span><span class="pl">▶</span></div><div class="nm">摇滚现场</div><div class="ct">15.2万收藏</div></div>
+      </div>
+    </div>
+
+    <!-- 为你推荐的新歌 -->
+    <div class="sec" style="padding-bottom:16px;">
+      <div class="sechead"><h3><span class="ico">♪</span>为你推荐的新歌</h3><span class="more">更多 ›</span></div>
+      <div class="songrow"><div class="cv" style="background:linear-gradient(135deg,#3a4a6a,#1e2740);">🎵</div><div class="info"><div class="nm">不如回家喝自来水 <span class="new">NEW</span></div><div class="ar">陈奕迅 · 酷我新歌榜</div></div><span class="mo">⋮</span></div>
+      <div class="songrow"><div class="cv" style="background:linear-gradient(135deg,#6a3a4a,#401f2c);">🎶</div><div class="info"><div class="nm">至少还有你</div><div class="ar">林忆莲 · 咪咕新歌榜</div></div><span class="mo">⋮</span></div>
+      <div class="songrow"><div class="cv" style="background:linear-gradient(135deg,#4a6a3a,#26401f);">✨</div><div class="info"><div class="nm">你也可以是光 <span class="new">NEW</span></div><div class="ar">刘恋 · 网易新歌榜</div></div><span class="mo">⋮</span></div>
+      <div class="songrow"><div class="cv" style="background:linear-gradient(135deg,#6a5a3a,#40381f);">🎸</div><div class="info"><div class="nm">风骨</div><div class="ar">毛不易 · 酷狗新歌榜</div></div><span class="mo">⋮</span></div>
+    </div>
+  </div>
+
+  <!-- ============ 发现（排行榜/歌单广场/歌手） ============ -->
+  <div class="page" id="pg-discover">
+    <div class="subnav">
+      <span class="tab" id="sn-square" onclick="disTo('square')">歌单广场</span>
+      <span class="tab" id="sn-board" onclick="disTo('board')">排行榜</span>
+      <span class="tab" id="sn-artist" onclick="disTo('artist')">歌手</span>
+      <span class="srch">🔍</span>
+    </div>
+
+    <!-- 排行榜：双列错位瀑布流 -->
+    <div class="subpane" id="sp-board">
+      <div class="chips"><span class="chip on">全部</span><span class="chip">流行</span><span class="chip">摇滚</span><span class="chip">电子</span><span class="chip">嘻哈</span><span class="chip">古典</span></div>
+      <div class="boardwrap">
+        <div class="bcol left">
+          <div class="board"><div class="cv" style="background:linear-gradient(135deg,#5a2b6e,#241038);"><span class="em">🚀</span><span class="top t1">TOP <b>1</b></span><span class="pl">▶</span></div><div class="nm">飙升榜</div><div class="ct"><span>100首歌</span><span class="pv">▶ 540.2万</span></div></div>
+          <div class="board"><div class="cv" style="background:linear-gradient(135deg,#2b5a5e,#10282e);"><span class="em">🔥</span><span class="top t3">TOP <b>3</b></span><span class="pl">▶</span></div><div class="nm">热歌榜</div><div class="ct"><span>200首歌</span><span class="pv">▶ 2600万</span></div></div>
+          <div class="board"><div class="cv" style="background:linear-gradient(135deg,#5e4b2b,#2e2410);"><span class="em">🎤</span><span class="top n">TOP <b>5</b></span><span class="pl">▶</span></div><div class="nm">说唱榜</div><div class="ct"><span>100首歌</span><span class="pv">▶ 520万</span></div></div>
+        </div>
+        <div class="bcol right">
+          <div class="board"><div class="cv" style="background:linear-gradient(135deg,#6e2b4a,#381024);"><span class="em">🏆</span><span class="top t2">TOP <b>2</b></span><span class="pl">▶</span></div><div class="nm">TOP500</div><div class="ct"><span>500首歌</span><span class="pv">▶ 2100万</span></div></div>
+          <div class="board"><div class="cv" style="background:linear-gradient(135deg,#2b4a6e,#102038);"><span class="em">🆕</span><span class="top t3">TOP <b>3</b></span><span class="pl">▶</span></div><div class="nm">新歌榜</div><div class="ct"><span>100首歌</span><span class="pv">▶ 760万</span></div></div>
+          <div class="board"><div class="cv" style="background:linear-gradient(135deg,#3a6e2b,#1a3810);"><span class="em">🎸</span><span class="top n">TOP <b>6</b></span><span class="pl">▶</span></div><div class="nm">摇滚榜</div><div class="ct"><span>100首歌</span><span class="pv">▶ 380万</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 歌单广场：三列瀑布流 -->
+    <div class="subpane" id="sp-square">
+      <div class="chips"><span class="chip on">全部</span><span class="chip">流行</span><span class="chip">摇滚</span><span class="chip">民谣</span><span class="chip">电子</span><span class="chip">古典</span><span class="chip">爵士</span><span class="chip">说唱</span></div>
+      <div class="grid3" style="padding-bottom:16px;">
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#5a2b3a,#2e171f);"><span class="em">🎸</span><span class="pl">▶</span></div><div class="nm">经典摇滚精选合辑</div><div class="ct"><span>▶128万</span><span>★3.2万</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#2b4a5a,#172e3a);"><span class="em">🎹</span><span class="pl">▶</span></div><div class="nm">流行金曲</div><div class="ct"><span>▶96万</span><span>★2.1万</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#3a2b5a,#1f1736);"><span class="em">🎧</span><span class="pl">▶</span></div><div class="nm">电子律动歌单</div><div class="ct"><span>▶75万</span><span>★1.8万</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#5a4a2b,#362e17);"><span class="em">🎻</span><span class="pl">▶</span></div><div class="nm">古典殿堂名曲</div><div class="ct"><span>▶54万</span><span>★9600</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#2b5a4a,#17362c);"><span class="em">🎤</span><span class="pl">▶</span></div><div class="nm">华语民谣之旅</div><div class="ct"><span>▶48万</span><span>★8700</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#5a3a2b,#36231a);"><span class="em">🎷</span><span class="pl">▶</span></div><div class="nm">爵士之夜</div><div class="ct"><span>▶36万</span><span>★7400</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#4a2b5a,#241736);"><span class="em">🌙</span><span class="pl">▶</span></div><div class="nm">深夜失眠电台 · 助眠轻音乐</div><div class="ct"><span>▶29万</span><span>★6100</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#2b5a3a,#17362a);"><span class="em">☕</span><span class="pl">▶</span></div><div class="nm">咖啡馆爵士</div><div class="ct"><span>▶21万</span><span>★4800</span></div></div>
+        <div class="gcard"><div class="cv" style="background:linear-gradient(135deg,#5a2b2b,#361717);"><span class="em">💥</span><span class="pl">▶</span></div><div class="nm">健身动感节拍</div><div class="ct"><span>▶18万</span><span>★3900</span></div></div>
+      </div>
+    </div>
+
+    <!-- 歌手（沿用现有简化） -->
+    <div class="subpane" id="sp-artist">
+      <div class="chips"><span class="chip on">华语男</span><span class="chip">华语女</span><span class="chip">欧美</span><span class="chip">日韩</span><span class="chip">乐队组合</span></div>
+      <p style="padding:30px 16px;color:var(--text2);font-size:12.5px;line-height:2;">歌手页沿用现有圆形头像网格样式<br>（各音源无歌手分类接口，使用内置热门歌手榜）</p>
+    </div>
+  </div>
+
+  <!-- ============ 我的音乐 ============ -->
+  <div class="page" id="pg-mine">
+    <div class="simple">
+      <div class="big">我的音乐</div>
+      <div class="row"><div class="ic">♥</div><div><div class="t">我喜欢的音乐</div><div class="d">128首 · 点击播放全部</div></div></div>
+      <div class="row"><div class="ic">📑</div><div><div class="t">夜晚治愈所</div><div class="d">创建歌单 · 24首</div></div></div>
+      <div class="row"><div class="ic">🕘</div><div><div class="t">最近播放</div><div class="d">查看播放历史</div></div></div>
+      <div class="row"><div class="ic">⬇️</div><div><div class="t">下载管理</div><div class="d">已下载 12 首</div></div></div>
+      <p style="color:var(--text3);font-size:11.5px;margin-top:12px;">本页沿用现有功能，仅套用新配色（示意）</p>
+    </div>
+  </div>
+
+  <!-- ============ 个人中心 ============ -->
+  <div class="page" id="pg-profile">
+    <div class="simple">
+      <div class="big">个人中心</div>
+      <div class="row"><div class="ic">🎧</div><div><div class="t">Melody_7</div><div class="d">Lv.18 · 音乐是生活的解药。</div></div></div>
+      <div class="row"><div class="ic">🎨</div><div><div class="t">背景皮肤</div><div class="d">自定义图片上传 · 沿用现有功能</div></div></div>
+      <div class="row"><div class="ic">⚙️</div><div><div class="t">设置</div><div class="d">播放器风格 · 音源管理 · 清理缓存</div></div></div>
+      <p style="color:var(--text3);font-size:11.5px;margin-top:12px;">本页沿用现有功能，仅套用新配色（示意）</p>
+    </div>
+  </div>
+
+  <!-- 播放卡片（常驻） -->
+  <div class="playcard">
+    <div class="prog"></div>
+    <div class="cv">🎵</div>
+    <div class="info"><div class="nm">我们都被忘了</div><div class="ar">王赫野</div></div>
+    <span class="btn">❚❚</span>
+    <span class="next">⏭</span>
+  </div>
+
+  <!-- 底部 4 Tab -->
+  <div class="tabbar">
+    <span class="item on" data-k="home" onclick="navTo('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
+      首页
+    </span>
+    <span class="item" data-k="discover" onclick="navTo('discover')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
+      发现
+    </span>
+    <span class="item" data-k="mine" onclick="navTo('mine')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 9V3"/></svg>
+      我的音乐
+    </span>
+    <span class="item" data-k="profile" onclick="navTo('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+      个人中心
+    </span>
+  </div>
+
+</div><!-- /screen -->
+</div><!-- /phone -->
+
+<!-- ══════════ 说明 ══════════ -->
+<div class="sideinfo">
+  <div class="card">
+    <h4>首页结构（自上而下）</h4>
+    顶部导航 <b style="color:var(--primary)">推荐/排行榜/歌单/歌手/搜索</b>（原抽屉里的歌单、排行榜移到这里）→ <b style="color:var(--primary)">五张轮播</b>（最新最火推荐歌单，自动播放）→ 个性化推荐（横滑歌单）→ 为你推荐的新歌 → 播放歌曲卡片（带下一首键+顶部进度）→ 底部 4 Tab
+  </div>
+  <div class="card">
+    <h4>排行榜 · 双卡片错位瀑布流</h4>
+    左右两列错位排布（右列下沉 44px），卡片含 <b style="color:var(--primary)">TOP 彩色角标</b>（1玫红/2橙/3暖黄）、氛围封面、播放按钮、榜单名、歌曲数、播放量。分类胶囊：全部/流行/摇滚/电子/嘻哈/古典。
+  </div>
+  <div class="card">
+    <h4>歌单广场 · 三卡片瀑布流</h4>
+    三列布局，歌单名最多两行（自然形成高度错落），每卡含封面+播放按钮+歌单名+播放量+收藏量。分类胶囊横向滑动。
+  </div>
+  <div class="card">
+    <h4>其他调整</h4>
+    · 抽屉菜单移除「歌单、排行榜」入口，避免与首页重复<br>
+    · 主色：参考图为<b style="color:var(--primary)">紫色 #8B5CF6</b>（顶部可切换粉色对比，实施时二选一）<br>
+    · 我的音乐/个人中心沿用现有功能，仅套新配色<br>
+    · 手机里可直接点：底部Tab、顶部导航、排行榜/歌单切换、主色开关
+  </div>
+</div>
+
+</div><!-- /stage -->
+
+<div class="callout">
+  <b>与参考图逐项对应：</b>
+  ① 底部 Tab 栏 4 个（首页/发现/我的音乐/个人中心）✔
+  ② 左侧菜单的歌单、排行榜移至首页顶部导航 ✔
+  ③ 顶部导航下方 <b>五张轮播</b>（最新最火推荐歌单）✔
+  ④ 个性化推荐歌单（横滑）✔
+  ⑤ 为你推荐的新歌 ✔
+  ⑥ 播放歌曲卡片 ✔ → 底部 Tab 栏 ✔
+  ⑦ 排行榜 <b>双卡片错位瀑布流</b>（图2）✔
+  ⑧ 歌单广场 <b>三卡片瀑布流</b>（图3）✔
+</div>
+
+<div class="confirm">
+  <div class="t">请预览确认</div>
+  预览地址：<b style="color:var(--primary)">https://mo3344.github.io/An-music-mobile/</b>（手机里可点击交互）。<br>
+  请确认两点后回复"<b>开始实施</b>"：① 主色用紫色还是粉色（预览页顶部可切换对比）；② 各页面细节是否需调整。确认后我改代码并自动构建新 APK。
+</div>
+
+<p class="foot">An Music 美化方案 · 简约深色版 · 部署于 GitHub Pages</p>
+
+</div><!-- /wrap -->
+
+<script>
+function navTo(k){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+k).classList.add('on');
+  document.querySelectorAll('.tabbar .item').forEach(t=>t.classList.toggle('on',t.dataset.k===k));
+}
+function disTo(k){
+  document.querySelectorAll('#pg-discover .subpane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('sp-'+k).classList.add('on');
+  ['square','board','artist'].forEach(x=>document.getElementById('sn-'+x).classList.toggle('on',x===k));
+}
+function setPrimary(mode){
+  document.body.classList.toggle('pink',mode==='pink');
+  document.getElementById('cb-purple').classList.toggle('on',mode==='purple');
+  document.getElementById('cb-pink').classList.toggle('on',mode==='pink');
+}
+// 轮播自动播放
+let bi=0; const bn=5;
+setInterval(()=>{
+  const slides=document.querySelectorAll('.bslide'), dots=document.querySelectorAll('#bdots i');
+  slides[bi].classList.remove('on'); dots[bi].classList.remove('on');
+  bi=(bi+1)%bn;
+  slides[bi].classList.add('on'); dots[bi].classList.add('on');
+},3500);
+</script>
+</body>
+</html>
