@@ -6,14 +6,16 @@ import { useNavActiveId } from '@/store/common/hook'
 import { setNavActiveId } from '@/core/common'
 import { Icon } from '@/components/common/Icon'
 import Text from '@/components/common/Text'
-import { scaleSizeH, scaleSizeW } from '@/utils/pixelRatio'
+import { scaleSizeH } from '@/utils/pixelRatio'
 import { useI18n } from '@/lang'
+import { navigations } from '@/navigation'
+import commonState from '@/store/common/state'
 
 const TABS = [
   { id: 'nav_home', icon: 'home', label: 'nav_home' },
   { id: 'nav_discover', icon: 'album', label: 'nav_discover' },
+  { id: 'nav_mine', icon: 'play-outline', label: 'nav_mine' },
   { id: 'nav_love', icon: 'love', label: 'nav_love' },
-  { id: 'nav_mine', icon: 'music_time', label: 'nav_mine' },
   { id: 'nav_setting', icon: 'setting', label: 'nav_setting' },
 ] as const
 
@@ -22,13 +24,22 @@ export default memo(() => {
   const activeId = useNavActiveId()
   const t = useI18n()
 
+  const handleTabPress = (id: string) => {
+    if (id == 'nav_mine') {
+      // 音乐 Tab：直接打开播放页
+      navigations.pushPlayDetailScreen(commonState.componentIds.home!)
+      return
+    }
+    setNavActiveId(id as Parameters<typeof setNavActiveId>[0])
+  }
+
   return (
     <View style={styles.container}>
       {TABS.map(tab => {
         const active = activeId == tab.id || (activeId == 'nav_search' && tab.id == 'nav_home')
         return (
-          <TouchableOpacity key={tab.id} style={styles.item} onPress={() => setNavActiveId(tab.id)}>
-            <Icon name={tab.icon} size={17} color={active ? theme['c-primary'] : theme['c-font-label']} />
+          <TouchableOpacity key={tab.id} style={styles.item} onPress={() => handleTabPress(tab.id)}>
+            <Icon name={tab.icon as any} size={17} color={active ? theme['c-primary'] : theme['c-font-label']} />
             <Text size={9} style={{ color: active ? theme['c-primary'] : theme['c-font-label'], fontWeight: active ? '700' : '400', marginTop: 2 }}>
               {t(tab.label as any) || tab.label}
             </Text>

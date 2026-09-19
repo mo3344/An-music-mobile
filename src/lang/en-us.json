@@ -164,8 +164,8 @@
   "music_toggle__duplicate_tip": "The same song already exists in the list, should I remove it and continue?",
   "name": "Title: {name}",
   "nav_exit": "Exit App",
-  "nav_love": "Your Library",
-  "nav_mine": "Mine",
+  "nav_love": "Mine",
+  "nav_mine": "Music",
   "nav_home": "Home",
   "nav_search": "Search",
   "nav_setting": "Settings",
@@ -526,5 +526,10 @@
   "setting_basic_source_select_all": "Select all",
   "setting_basic_source_select_none": "Only one",
   "setting_basic_source_selected": "Selected",
-  "setting_basic_source_count": ""
+  "setting_basic_source_count": "",
+  "home_hot_songlists": "Popular Playlists",
+  "home_hot_songs": "Hot Songs",
+  "home_recent_play": "Recently Played",
+  "home_no_recent": "No play history yet",
+  "profile_subtitle": "My Playlists · Local Music"
 }

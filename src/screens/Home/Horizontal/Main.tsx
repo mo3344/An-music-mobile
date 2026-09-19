@@ -21,8 +21,7 @@ const Main = () => {
       case 'nav_discover':
       case 'nav_songlist':
       case 'nav_top': return <Discover />
-      case 'nav_love':
-      case 'nav_mine': return <Mylist />
+      case 'nav_love': return <Mylist />
       case 'nav_setting': return <Setting />
       default: return <Home />
     }

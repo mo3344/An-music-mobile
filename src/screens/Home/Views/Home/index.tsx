@@ -1,79 +1,51 @@
 import { memo, useEffect, useState, useCallback } from 'react'
 import { ScrollView, TouchableOpacity, View, RefreshControl } from 'react-native'
-import { createStyle, toast } from '@/utils/tools'
+import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import { useStatusbarHeight } from '@/store/common/hook'
 import { setNavActiveId } from '@/core/common'
 import Text from '@/components/common/Text'
+import Image from '@/components/common/Image'
 import { Icon } from '@/components/common/Icon'
 import { scaleSizeH, scaleSizeW } from '@/utils/pixelRatio'
 import { useI18n } from '@/lang'
 import musicSdk from '@/utils/musicSdk'
 import { getBoardsList, getListDetail } from '@/core/leaderboard'
-import boardState from '@/store/leaderboard/state'
+import { setTempList } from '@/core/list'
+import { playList } from '@/core/player/player'
+import { LIST_IDS } from '@/config/constant'
+import playerState from '@/store/player/state'
 import { navigations } from '@/navigation'
 import commonState from '@/store/common/state'
 import { type ListInfoItem } from '@/store/songlist/state'
+import { handlePlay as playBoard } from '../Leaderboard/listAction'
 
-// 榜单渐变色
-const BOARD_COLORS: Record<string, [string, string]> = {
-  hot: ['#9C27B0', '#673AB7'],
-  new: ['#00BCD4', '#009688'],
-  rise: ['#FF5722', '#E91E63'],
-  top500: ['#FF9800', '#FF5722'],
- 抖音: ['#E91E63', '#9C27B0'],
-}
-const defaultColors: [string, string] = ['#3F51B5', '#2196F3']
-
-const getColor = (id: string): [string, string] => {
-  for (const k of Object.keys(BOARD_COLORS)) {
-    if (id.includes(k)) return BOARD_COLORS[k]
-  }
-  return defaultColors
-}
-
-// 歌单渐变色池
-const SONG_COLORS: [string, string][] = [
-  ['#5C6BC0', '#3F51B5'],
-  ['#26A69A', '#00897B'],
-  ['#EC407A', '#D81B60'],
-  ['#AB47BC', '#8E24AA'],
-  ['#FFA726', '#FB8C00'],
-  ['#42A5F5', '#1E88E5'],
-  ['#66BB6A', '#43A047'],
-  ['#7E57C2', '#5E35B1'],
-  ['#FF7043', '#F4511E'],
-  ['#26C6DA', '#00ACC1'],
-]
-const getSongColor = (i: number): [string, string] => SONG_COLORS[i % SONG_COLORS.length]
 
 export default memo(() => {
   const theme = useTheme()
   const t = useI18n()
   const statusBarHeight = useStatusbarHeight()
   const [songlists, setSonglists] = useState<ListInfoItem[]>([])
-  const [boards, setBoards] = useState<ListInfoItem[]>([])
-  const [boardSongs, setBoardSongs] = useState<Record<string, LX.Music.MusicInfoOnline[]>>({})
+  const [hotSongs, setHotSongs] = useState<LX.Music.MusicInfoOnline[]>([])
+  const [boardId, setBoardId] = useState('')
+  const [recent, setRecent] = useState<LX.Player.PlayMusicInfo[]>([])
   const [loading, setLoading] = useState(false)
 
   const loadData = useCallback(() => {
     setLoading(true)
-    // 歌单广场（酷我热门）
+    // 热门歌单
     void musicSdk.kw.songList.getList('hot', '', 1).then((result: any) => {
-      setSonglists((result?.list ?? []).slice(0, 8))
+      setSonglists((result?.list ?? []).slice(0, 6))
     }).catch(() => {})
 
-    // 排行榜列表
+    // 热门歌曲（热歌榜）
     void getBoardsList('kw').then(list => {
-      const top4 = list.slice(0, 4)
-      setBoards(top4)
-      // 取每个榜单前3首歌
-      top4.forEach(board => {
-        const boardId = board.id
-        void getListDetail(boardId, 1).then(detail => {
-          setBoardSongs(prev => ({ ...prev, [boardId]: (detail?.list ?? []).slice(0, 3) }))
-        }).catch(() => {})
-      })
+      if (!list.length) return
+      const b = list[0]
+      setBoardId(b.id)
+      void getListDetail(b.id, 1).then(d => {
+        setHotSongs((d.list ?? []).slice(0, 10))
+      }).catch(() => {})
     }).catch(() => {})
 
     setLoading(false)
@@ -81,9 +53,35 @@ export default memo(() => {
 
   useEffect(() => { loadData() }, [loadData])
 
-  const handleOpenSonglist = (item: ListInfoItem) => {
+  // 最近播放
+  useEffect(() => {
+    const update = () => setRecent([...playerState.playedList].reverse())
+    update()
+    global.state_event.on('playPlayedListChanged', update)
+    return () => { global.state_event.off('playPlayedListChanged', update) }
+  }, [])
+
+  const recentList = recent.filter(r => (r.musicInfo as any).source != 'local')
+
+  const openSonglist = (item: ListInfoItem) => {
     navigations.pushSonglistDetailScreen(commonState.componentIds.home!, item)
   }
+  const playHotSong = (i: number) => {
+    if (!boardId || !hotSongs.length) return
+    void playBoard(boardId, hotSongs, i)
+  }
+  const playRecent = (i: number) => {
+    const list = recentList.slice(0, 10).map(r => r.musicInfo) as unknown as LX.Music.MusicInfoOnline[]
+    if (!list.length) return
+    const idx = Math.min(i, list.length - 1)
+    void setTempList('recent_play', list).then(() => void playList(LIST_IDS.TEMP, idx))
+  }
+
+  const renderSection = (title: string) => (
+    <View style={styles.sectionHeader}>
+      <Text size={15} style={{ fontWeight: '700', color: theme['c-font'] }}>{title}</Text>
+    </View>
+  )
 
   return (
     <ScrollView
@@ -95,74 +93,82 @@ export default memo(() => {
       <View style={{ ...styles.topBar, paddingTop: statusBarHeight }}>
         <TouchableOpacity style={{ ...styles.searchBox, backgroundColor: theme['c-primary-background-hover'] }} onPress={() => setNavActiveId('nav_search')}>
           <Icon name="search-2" size={14} color={theme['c-font-label']} />
-          <Text size={12} color={theme['c-font-label']} style={{ marginLeft: 6 }}>{t('search')}</Text>
+          <Text size={12} color={theme['c-font-label']} style={{ marginLeft: 6 }}>{t('search' as any)}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 双列卡片网格 */}
-      <View style={styles.grid}>
-        {/* 排行榜卡片（穿插在前几行） */}
-        {boards.map((board, i) => {
-          const [c1, c2] = getColor(board.id)
-          const songs = boardSongs[board.id] || []
-          return (
-            <TouchableOpacity key={board.id} style={styles.card} activeOpacity={0.85} onPress={() => { setNavActiveId('nav_discover'); global.app_event.showDiscoverTab('board') }}>
-              <View style={{ ...styles.cardBg, backgroundColor: c2 }}>
-                <View style={{ ...styles.cardBgOverlay, backgroundColor: c1 }} />
-              </View>
-              <Text size={13} style={styles.cardTitle} color="#fff">{board.name}</Text>
-              {songs.map((s, si) => (
-                <Text key={si} size={9} color="rgba(255,255,255,0.7)" style={styles.boardSong} numberOfLines={1}>
-                  {si + 1}  {s.name}
-                </Text>
-              ))}
-            </TouchableOpacity>
-          )
-        })}
+      {/* 热门歌单 横向滚动 */}
+      {renderSection(t('home_hot_songlists' as any))}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} nestedScrollEnabled contentContainerStyle={styles.hScroll}>
+        {songlists.map((item, i) => (
+          <TouchableOpacity key={item.id || i} style={styles.songCard} activeOpacity={0.85} onPress={() => openSonglist(item)}>
+            <View style={styles.songCoverWrap}>
+              <Image url={item.img ?? null} style={styles.songCover} cache />
+              <View style={styles.songCoverOverlay} />
+            </View>
+            <Text size={11} color={theme['c-font']} style={styles.songName} numberOfLines={2}>{item.name}</Text>
+            {item.play_count ? <Text size={9} color={theme['c-font-label']} style={styles.songPlay} numberOfLines={1}>{item.play_count} 收藏</Text> : null}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-        {/* 歌单卡片 */}
-        {songlists.map((item, i) => {
-          const [c1, c2] = getSongColor(i)
+      {/* 热门歌曲 */}
+      {renderSection(t('home_hot_songs' as any))}
+      <View style={styles.songListWrap}>
+        {hotSongs.map((s, i) => (
+          <TouchableOpacity key={s.id || i} style={styles.songRow} activeOpacity={0.7} onPress={() => playHotSong(i)}>
+            <Text size={14} style={{ ...styles.songIndex, color: i < 3 ? theme['c-primary'] : theme['c-font-label'], fontWeight: i < 3 ? '700' : '400' }}>{i + 1}</Text>
+            <View style={styles.songInfo}>
+              <Text size={13} color={theme['c-font']} numberOfLines={1}>{s.name}</Text>
+              <Text size={10} color={theme['c-font-label']} numberOfLines={1}>{s.singer}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* 最近播放 */}
+      {renderSection(t('home_recent_play' as any))}
+      <View style={styles.songListWrap}>
+        {recentList.length ? recentList.slice(0, 10).map((r, i) => {
+          const m = r.musicInfo as any
           return (
-            <TouchableOpacity key={item.id || i} style={styles.card} activeOpacity={0.85} onPress={() => handleOpenSonglist(item)}>
-              <View style={{ ...styles.cardBg, backgroundColor: c2 }}>
-                <View style={{ ...styles.cardBgOverlay, backgroundColor: c1 }} />
+            <TouchableOpacity key={i} style={styles.songRow} activeOpacity={0.7} onPress={() => playRecent(i)}>
+              <Text size={14} style={{ ...styles.songIndex, color: theme['c-font-label'] }}>{i + 1}</Text>
+              <View style={styles.songInfo}>
+                <Text size={13} color={theme['c-font']} numberOfLines={1}>{m.name}</Text>
+                <Text size={10} color={theme['c-font-label']} numberOfLines={1}>{m.singer}</Text>
               </View>
-              <Text size={12} style={styles.cardTitle} color="#fff" numberOfLines={1}>{item.name}</Text>
-              <Text size={9} color="rgba(255,255,255,0.65)" style={styles.cardSub} numberOfLines={1}>{item.play_count ? item.play_count + ' 收藏' : ''}</Text>
             </TouchableOpacity>
           )
-        })}
+        }) : (
+          <View style={styles.emptyWrap}>
+            <Text size={12} color={theme['c-font-label']}>{t('home_no_recent' as any)}</Text>
+          </View>
+        )}
       </View>
       <View style={{ height: scaleSizeH(20) }} />
     </ScrollView>
   )
 })
 
-const CARD_GAP = scaleSizeW(10)
-const CARD_W = scaleSizeW(175)
+const CARD_W = scaleSizeW(112)
+const COVER = scaleSizeW(112)
 
 const styles = createStyle({
   container: { flex: 1 },
   topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: scaleSizeW(16), paddingBottom: scaleSizeH(8) },
   searchBox: { flex: 1, flexDirection: 'row', alignItems: 'center', borderRadius: scaleSizeW(20), paddingHorizontal: scaleSizeW(14), paddingVertical: scaleSizeH(9) },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: scaleSizeW(14), paddingBottom: scaleSizeH(10) },
-  card: {
-    width: CARD_W,
-    height: scaleSizeH(110),
-    marginBottom: CARD_GAP,
-    borderRadius: scaleSizeW(12),
-    overflow: 'hidden',
-    padding: scaleSizeW(12),
-    justifyContent: 'flex-end',
-  },
-  cardBg: {
-    position: 'absolute', left: 0, top: 0, right: 0, bottom: 0,
-  },
-  cardBgOverlay: {
-    position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, opacity: 0.85,
-  },
-  cardTitle: { fontWeight: '700', marginBottom: 2 },
-  cardSub: { marginTop: 1 },
-  boardSong: { marginTop: 1, lineHeight: scaleSizeH(14) },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: scaleSizeW(16), marginTop: scaleSizeH(12), marginBottom: scaleSizeH(8) },
+  hScroll: { paddingHorizontal: scaleSizeW(14), gap: scaleSizeW(10) },
+  songCard: { width: CARD_W },
+  songCoverWrap: { width: COVER, height: COVER, borderRadius: scaleSizeW(10), overflow: 'hidden', position: 'relative' },
+  songCover: { width: COVER, height: COVER, borderRadius: scaleSizeW(10) },
+  songCoverOverlay: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: scaleSizeW(10) },
+  songName: { marginTop: scaleSizeH(6), marginBottom: 1 },
+  songPlay: { marginBottom: 0 },
+  songListWrap: { paddingHorizontal: scaleSizeW(16) },
+  songRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: scaleSizeH(7) },
+  songIndex: { width: scaleSizeW(24), textAlign: 'center' },
+  songInfo: { flex: 1, marginLeft: scaleSizeW(6) },
+  emptyWrap: { paddingVertical: scaleSizeH(20), alignItems: 'center' },
 })

@@ -164,8 +164,8 @@
   "music_toggle__duplicate_tip": "列表中已存在相同的歌曲，是否將其移除並繼續？",
   "name": "標題：{name}",
   "nav_exit": "退出應用",
-  "nav_love": "我的清單",
-  "nav_mine": "我的",
+  "nav_love": "我的",
+  "nav_mine": "音樂",
   "nav_home": "首頁",
   "nav_search": "搜尋",
   "nav_setting": "設定",
@@ -526,5 +526,10 @@
   "setting_basic_source_select_all": "全選",
   "setting_basic_source_select_none": "僅選一個",
   "setting_basic_source_selected": "已選",
-  "setting_basic_source_count": "個"
+  "setting_basic_source_count": "個",
+  "home_hot_songlists": "熱門歌單",
+  "home_hot_songs": "熱門歌曲",
+  "home_recent_play": "最近播放",
+  "home_no_recent": "還沒有播放記錄，去發現頁聽聽歌吧",
+  "profile_subtitle": "我的歌單 · 本地音樂"
 }

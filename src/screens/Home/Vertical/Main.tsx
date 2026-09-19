@@ -51,7 +51,6 @@ const viewMap: Record<string, number> = {
   nav_search: 0,
   nav_discover: 1,
   nav_love: 2,
-  nav_mine: 2,
   nav_setting: 3,
   nav_songlist: 1,
   nav_top: 1,
