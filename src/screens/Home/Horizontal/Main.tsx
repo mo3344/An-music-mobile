@@ -1,43 +1,34 @@
 import { useEffect, useMemo, useState } from 'react'
-import Search from '../Views/Search'
-import SongList from '../Views/SongList'
+import Home from '../Views/Home'
+import Discover from '../Views/Discover'
 import Mylist from '../Views/Mylist'
-import Leaderboard from '../Views/Leaderboard'
 import Setting from '../Views/Setting'
 import commonState, { type InitState as CommonState } from '@/store/common/state'
-
 
 const Main = () => {
   const [id, setId] = useState(commonState.navActiveId)
 
   useEffect(() => {
-    const handleUpdate = (id: CommonState['navActiveId']) => {
-      requestAnimationFrame(() => {
-        setId(id)
-      })
-    }
+    const handleUpdate = (id: CommonState['navActiveId']) => { requestAnimationFrame(() => setId(id)) }
     global.state_event.on('navActiveIdUpdated', handleUpdate)
-    return () => {
-      global.state_event.off('navActiveIdUpdated', handleUpdate)
-    }
+    return () => { global.state_event.off('navActiveIdUpdated', handleUpdate) }
   }, [])
 
   const component = useMemo(() => {
     switch (id) {
       case 'nav_home':
-      case 'nav_songlist': return <SongList />
+      case 'nav_search': return <Home />
       case 'nav_discover':
-      case 'nav_top': return <Leaderboard />
-      case 'nav_love': return <Mylist />
+      case 'nav_songlist':
+      case 'nav_top': return <Discover />
+      case 'nav_love':
+      case 'nav_mine': return <Mylist />
       case 'nav_setting': return <Setting />
-      case 'nav_search':
-      default: return <Search />
+      default: return <Home />
     }
   }, [id])
 
   return component
 }
 
-
 export default Main
-
