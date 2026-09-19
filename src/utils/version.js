@@ -15,9 +15,9 @@ const abis = [
 const REPO = 'An-music-mobile'
 const address = [
   [`https://raw.githubusercontent.com/${author.name}/${REPO}/master/publish/version.json`, 'direct'],
-  [`https://cdn.jsdelivr.net/gh/${author.name}/${REPO}/publish/version.json`, 'direct'],
-  [`https://fastly.jsdelivr.net/gh/${author.name}/${REPO}/publish/version.json`, 'direct'],
-  [`https://gcore.jsdelivr.net/gh/${author.name}/${REPO}/publish/version.json`, 'direct'],
+  [`https://cdn.jsdelivr.net/gh/${author.name}/${REPO}@master/publish/version.json`, 'direct'],
+  [`https://fastly.jsdelivr.net/gh/${author.name}/${REPO}@master/publish/version.json`, 'direct'],
+  [`https://gcore.jsdelivr.net/gh/${author.name}/${REPO}@master/publish/version.json`, 'direct'],
 ]
 
 
