@@ -4,7 +4,7 @@ import { Icon } from '@/components/common/Icon'
 import { useTheme } from '@/store/theme/hook'
 import { usePlayerMusicInfo } from '@/store/player/hook'
 import DownloadQualityModal, { type DownloadQualityModalType } from '@/components/DownloadQualityModal'
-import { BTN_WIDTH } from '../Btn'
+import { BTN_WIDTH } from './Btn'
 
 export default memo(() => {
   const theme = useTheme()
