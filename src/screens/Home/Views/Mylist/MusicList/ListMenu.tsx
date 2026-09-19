@@ -4,6 +4,7 @@ import Menu, { type Menus, type MenuType, type Position } from '@/components/com
 import { hasDislike } from '@/core/dislikeList'
 import { existsFile } from '@/utils/fs'
 import { hasMusicUrlByMusic } from '@/utils/data'
+import DownloadQualityModal, { type DownloadQualityModalType } from '@/components/DownloadQualityModal'
 
 export interface SelectInfo {
   musicInfo: LX.Music.MusicInfo
@@ -49,6 +50,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
   const menuRef = useRef<MenuType>(null)
   const selectInfoRef = useRef<SelectInfo>(initSelectInfo as SelectInfo)
   const [menus, setMenus] = useState<Menus>([])
+  const downloadModalRef = useRef<DownloadQualityModalType>(null)
 
   useImperativeHandle(ref, () => ({
     show(selectInfo, position) {
@@ -83,6 +85,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
       { action: 'dislike', disabled: hasDislike(musicInfo), label: t('dislike') },
       { action: 'remove', label: t('delete') },
     ]
+    if (!isLocal) menu.splice(2, 0, { action: 'download', label: t('download') })
     if (isLocal) menu.splice(5, 0, { action: 'editMetadata', disabled: !edit_metadata, label: t('edit_metadata') })
     setMenus(menu)
     void Promise.all([isLocal ? hasEditMetadata(musicInfo) : Promise.resolve(false), hasUrlCache(musicInfo)]).then(([_edit_metadata, _has_url_cache]) => {
@@ -112,6 +115,13 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
       case 'playLater':
         props.onPlayLater(selectInfo)
 
+        break
+      case 'download':
+        if (selectInfo.musicInfo.source != 'local') {
+          requestAnimationFrame(() => {
+            downloadModalRef.current?.show(selectInfo.musicInfo)
+          })
+        }
         break
       case 'add':
         props.onAdd(selectInfo)
@@ -161,7 +171,10 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
 
   return (
     visible
-      ? <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} />
+      ? <>
+        <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} />
+        <DownloadQualityModal ref={downloadModalRef} />
+      </>
       : null
   )
 })

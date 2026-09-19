@@ -44,6 +44,16 @@ export class StateEvent extends Event {
     this.emit('bgPicUpdated', bgPic)
   }
 
+  /** 本地音乐库更新（参数为当前已导入总数） */
+  localMusicUpdated(count: number) {
+    this.emit('localMusicUpdated', count)
+  }
+
+  /** 下载任务状态变化 */
+  downloadTaskChanged() {
+    this.emit('downloadTaskChanged')
+  }
+
   playerMusicInfoChanged(musicInfo: PlayerState['musicInfo']) {
     this.emit('playerMusicInfoChanged', musicInfo)
   }

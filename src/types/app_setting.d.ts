@@ -107,6 +107,21 @@ declare global {
       'theme.fontShadow': boolean
 
       /**
+       * 播放器风格：dynamic 动态频谱 / vinyl 黑胶唱片 / classic 经典
+       */
+      'player.styleMode': 'dynamic' | 'vinyl' | 'classic'
+
+      /**
+       * 本地音乐：启动时自动扫描新文件
+       */
+      'localMusic.autoScan': boolean
+
+      /**
+       * 本地音乐：导入去重
+       */
+      'localMusic.dedup': boolean
+
+      /**
        * 启动时自动播放歌曲
        */
       'player.startupAutoPlay': boolean

@@ -78,6 +78,8 @@ export const storageDataPrefix = {
   dislikeList: '@dislike_list',
 
   userApi: '@user_api__',
+
+  localMusic: '@local_music_scan',
 } as const
 
 // v0.x.x 版本的 data keys
@@ -99,15 +101,17 @@ export const APP_PROVIDER_NAME = 'cn.toside.music.mobile.provider'
 
 
 export const NAV_MENUS = [
-  { id: 'nav_search', icon: 'search-2' },
-  { id: 'nav_songlist', icon: 'album' },
-  { id: 'nav_top', icon: 'leaderboard' },
+  { id: 'nav_home', icon: 'home' },
+  { id: 'nav_discover', icon: 'album' },
   { id: 'nav_love', icon: 'love' },
-  // { id: 'download', icon: 'download-2' },
   { id: 'nav_setting', icon: 'setting' },
 ] as const
 
-export type NAV_ID_Type = typeof NAV_MENUS[number]['id']
+// 类型兼容保留的旧页面 id（搜索页由首页搜索框进入，发现页子页由首页顶部导航进入）
+export type NAV_ID_Type = typeof NAV_MENUS[number]['id'] | 'nav_search' | 'nav_songlist' | 'nav_top'
+
+// 发现页子页
+export type DiscoverTabType = 'square' | 'board'
 
 export const LXM_FILE_EXT_RXP = ['json', 'lxmc', 'bin']
 export const USER_API_SOURCE_FILE_EXT_RXP = ['js']
@@ -148,7 +152,7 @@ export const DEFAULT_SETTING = {
   },
 
   viewPrevState: {
-    id: 'nav_search' as NAV_ID_Type,
+    id: 'nav_home' as NAV_ID_Type,
     // query: {},
   },
 }

@@ -29,6 +29,13 @@ const dislikeListPrefix = storageDataPrefix.dislikeList
 const userApiPrefix = storageDataPrefix.userApi
 const openStoragePathPrefix = storageDataPrefix.openStoragePath
 const selectedManagedFolderPrefix = storageDataPrefix.selectedManagedFolder
+const localMusicKey = storageDataPrefix.localMusic
+
+export interface LocalMusicStorageData {
+  paths: string[]
+  lastScanTime: number
+}
+let localMusicData: LocalMusicStorageData | null = null
 
 // const defaultListKey = listPrefix + 'default'
 // const loveListKey = listPrefix + 'love'
@@ -265,6 +272,17 @@ export const saveLeaderboardSetting = async(setting: Partial<typeof DEFAULT_SETT
   if (!leaderboardSetting) await getLeaderboardSetting()
   leaderboardSetting = Object.assign(leaderboardSetting, setting)
   saveLeaderboardSettingThrottle()
+}
+
+export const getLocalMusicData = async(): Promise<LocalMusicStorageData> => {
+  // eslint-disable-next-line require-atomic-updates
+  localMusicData ??= await getData<LocalMusicStorageData>(localMusicKey) ?? { paths: [], lastScanTime: 0 }
+  return localMusicData
+}
+export const saveLocalMusicData = async(data: Partial<LocalMusicStorageData>) => {
+  if (!localMusicData) await getLocalMusicData()
+  localMusicData = Object.assign(localMusicData!, data)
+  void saveData(localMusicKey, localMusicData)
 }
 
 export const getViewPrevState = async() => {

@@ -77,8 +77,9 @@ export default async(setting: LX.AppSetting) => {
     if (!info || info.id !== settingState.setting['common.apiSource']) return
     if (status) {
       if (info.sources) {
-        let apis: any = {}
-        let qualitys: LX.QualityList = {}
+        // 合并模式：保留已有 apis（内置源/其他已加载的源），仅覆盖当前脚本提供的源
+        let apis: any = { ...(global.lx.apis || {}) }
+        let qualitys: LX.QualityList = { ...(global.lx.qualityList || {}) }
         for (const [source, { actions, type, qualitys: sourceQualitys }] of Object.entries(info.sources)) {
           if (type != 'music') continue
           apis[source as LX.Source] = {}

@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import DrawerNav from './DrawerNav'
 import Header from './Header'
 import Main from './Main'
+import BottomTabBar from './BottomTabBar'
 import { useSettingValue } from '@/store/setting/hook'
 import { COMPONENT_IDS } from '@/config/constant'
 import DrawerLayoutFixed, { type DrawerLayoutFixedType } from '@/components/common/DrawerLayoutFixed'
@@ -45,6 +46,7 @@ const Content = () => {
     >
       <Header />
       <Main />
+      <BottomTabBar />
       {/* <View style={styles.container}>
       </View> */}
     </DrawerLayoutFixed>

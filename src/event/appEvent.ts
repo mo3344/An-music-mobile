@@ -190,6 +190,15 @@ export class AppEvent extends Event {
     this.emit('showSonglistTagList', source, activeId)
   }
 
+  /**
+   * 打开发现页并切换到指定子页
+   * @param tab square 歌单广场 / board 排行榜
+   */
+  showDiscoverTab(tab: 'square' | 'board') {
+    setNavActiveId('nav_discover')
+    this.emit('showDiscoverTab', tab)
+  }
+
   hideSonglistTagList() {
     this.emit('hideSonglistTagList')
   }

@@ -3,6 +3,7 @@ import { useI18n } from '@/lang'
 import Menu, { type Menus, type MenuType, type Position } from '@/components/common/Menu'
 import { hasDislike } from '@/core/dislikeList'
 import { hasMusicUrlByMusic } from '@/utils/data'
+import DownloadQualityModal, { type DownloadQualityModalType } from '@/components/DownloadQualityModal'
 
 export interface SelectInfo {
   musicInfo: LX.Music.MusicInfoOnline
@@ -38,6 +39,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
   const menuRef = useRef<MenuType>(null)
   const selectInfoRef = useRef<SelectInfo>(initSelectInfo as SelectInfo)
   const [menus, setMenus] = useState<Menus>([])
+  const downloadModalRef = useRef<DownloadQualityModalType>(null)
 
   useImperativeHandle(ref, () => ({
     show(selectInfo, position) {
@@ -58,12 +60,12 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
     const menu = [
       { action: 'play', label: t('play') },
       { action: 'playLater', label: t('play_later') },
-      // { action: 'download', label: '下载' },
+      { action: 'download', label: t('download') },
       { action: 'add', label: t('add_to') },
       { action: 'copyName', label: t('copy_name') },
       { action: 'musicSourceDetail', label: t('music_source_detail') },
       { action: 'removeCache', disabled: !has_url_cache, label: t('list_remove_cache') },
-      { action: 'dislike', label: t('dislike'), disabled: hasDislike(musicInfo) },
+      { action: 'dislike', disabled: hasDislike(musicInfo), label: t('dislike') },
     ]
     setMenus(menu)
     void hasUrlCache(musicInfo).then((_has_url_cache) => {
@@ -86,6 +88,13 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
         break
       case 'playLater':
         props.onPlayLater(selectInfo)
+        break
+      case 'download':
+        if (selectInfo.musicInfo.source != 'local') {
+          requestAnimationFrame(() => {
+            downloadModalRef.current?.show(selectInfo.musicInfo)
+          })
+        }
         break
       case 'add':
         props.onAdd(selectInfo)
@@ -110,7 +119,10 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
 
   return (
     visible
-      ? <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} />
+      ? <>
+        <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} />
+        <DownloadQualityModal ref={downloadModalRef} />
+      </>
       : null
   )
 })

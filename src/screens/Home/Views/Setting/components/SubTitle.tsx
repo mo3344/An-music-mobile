@@ -1,8 +1,8 @@
 import { memo } from 'react'
-
 import { View } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
+import { scaleSizeH, scaleSizeW } from '@/utils/pixelRatio'
 
 export default memo(({ title, children }: {
   title: string
@@ -10,21 +10,19 @@ export default memo(({ title, children }: {
 }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.title} size={13}>{title}</Text>
       {children}
     </View>
   )
 })
 
-
 const styles = createStyle({
   container: {
-    paddingLeft: 25,
-    marginBottom: 18,
+    paddingLeft: scaleSizeW(4),
+    marginBottom: scaleSizeH(14),
   },
   title: {
-    marginLeft: -10,
-    marginBottom: 10,
-    // lineHeight: 16,
+    marginLeft: scaleSizeW(-4),
+    marginBottom: scaleSizeH(8),
   },
 })

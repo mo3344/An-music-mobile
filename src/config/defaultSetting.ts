@@ -73,12 +73,17 @@ const defaultSetting: LX.AppSetting = {
   'sync.enable': false,
 
   // 'theme.id': 'blue_plus',
-  'theme.id': 'green',
-  'theme.lightId': 'green',
+  'theme.id': 'soda',
+  'theme.lightId': 'soda',
   'theme.darkId': 'black',
   'theme.hideBgDark': false,
-  'theme.dynamicBg': false,
+  'theme.dynamicBg': true,
   'theme.fontShadow': false,
+
+  'player.styleMode': 'dynamic',
+
+  'localMusic.autoScan': true,
+  'localMusic.dedup': true,
 }
 
 

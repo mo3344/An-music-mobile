@@ -6,6 +6,24 @@ const { createThemeColors } = require('./utils')
 
 const defaultThemes = [
   {
+    id: 'soda',
+    name: '汽水青柠',
+    isDark: false,
+    config: {
+      primary: 'rgb(23, 206, 141)',
+      font: 'rgb(17, 19, 24)',
+      'c-app-background': 'var(c-primary-light-600-alpha-700)',
+      'c-main-background': 'rgba(255, 255, 255, 1)',
+      'bg-image': '',
+      'bg-image-position': 'center',
+      'bg-image-size': 'cover',
+
+      'c-badge-primary': 'var(c-primary)',
+      'c-badge-secondary': '#cdee31',
+      'c-badge-tertiary': '#0fbfcc',
+    },
+  },
+  {
     id: 'green',
     name: '绿意盎然',
     isDark: false,

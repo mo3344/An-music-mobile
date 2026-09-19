@@ -1,10 +1,8 @@
 import { memo } from 'react'
-
 import { View } from 'react-native'
-
 import CheckBox, { type CheckBoxProps } from '@/components/common/CheckBox'
 import { createStyle } from '@/utils/tools'
-
+import { scaleSizeW } from '@/utils/pixelRatio'
 
 export default memo((props: CheckBoxProps) => {
   return (
@@ -16,9 +14,6 @@ export default memo((props: CheckBoxProps) => {
 
 const styles = createStyle({
   container: {
-    paddingLeft: 25,
-    // marginTop: -10,
-    // marginBottom: 0,
+    paddingLeft: scaleSizeW(4),
   },
 })
-

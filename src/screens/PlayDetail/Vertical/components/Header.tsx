@@ -1,7 +1,5 @@
 import { memo, useRef } from 'react'
-
 import { View, StyleSheet } from 'react-native'
-
 import { pop } from '@/navigation'
 import StatusBar from '@/components/common/StatusBar'
 import { useTheme } from '@/store/theme/hook'
@@ -17,12 +15,9 @@ import TimeoutExitBtn from './TimeoutExitBtn'
 
 export const HEADER_HEIGHT = scaleSizeH(_HEADER_HEIGHT)
 
-
 const Title = () => {
   const theme = useTheme()
   const musicInfo = usePlayerMusicInfo()
-
-
   return (
     <View style={styles.titleContent}>
       <Text numberOfLines={1} style={styles.title}>{musicInfo.name}</Text>
@@ -34,14 +29,8 @@ const Title = () => {
 export default memo(() => {
   const popupRef = useRef<SettingPopupType>(null)
   const statusBarHeight = useStatusbarHeight()
-
-  const back = () => {
-    void pop(commonState.componentIds.playDetail!)
-  }
-  const showSetting = () => {
-    popupRef.current?.show()
-  }
-
+  const back = () => { void pop(commonState.componentIds.playDetail!) }
+  const showSetting = () => { popupRef.current?.show() }
   return (
     <View style={{ height: HEADER_HEIGHT + statusBarHeight, paddingTop: statusBarHeight }} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_header}>
       <StatusBar />
@@ -56,25 +45,18 @@ export default memo(() => {
   )
 })
 
-
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    // justifyContent: 'center',
     height: '100%',
   },
   titleContent: {
     flex: 1,
     paddingHorizontal: 5,
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    // flex: 1,
-    // textAlign: 'center',
-  },
-  icon: {
-    paddingLeft: 4,
-    paddingRight: 4,
+    textAlign: 'center',
   },
 })
